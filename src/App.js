@@ -1,40 +1,50 @@
-function Shoes({name, picture}) {
-   return (
-       <div>
-           <h2>I like {name}</h2>
-          <img src ={picture} />
-       </div>
-   );}
+import axios from 'axios';
+import React from 'react';
+import Movie from './Movie';
+import './App.css';
 
-const ShoesIlike = [
-{
-   name:'nike dunk low retro black',
-   image:'https://footsell.com/g2/data/og_image/sneakernews/607160.jpg',
-},
-{
-   name:'nike air force 1',
-   image:'https://t1.daumcdn.net/cfile/tistory/27372A4057D1826208',
-},
-{
-   name:'nike x peaceminusone kwondo1',
-   image:'https://external-content.duckduckgo.com/iu/?u=https%3A%2F%2Ftse2.mm.bing.net%2Fth%3Fid%3DOIP.XHCdRTNmRj5cdt7CbtxkkQAAAA%26pid%3DApi&f=1',
-},
-{
-   name:'jordan 1 university blue',
-   image:'https://footsell.com/g2/data/cheditor5/2101/view_thumbnail/mania-done-20210120091423_nookprve.jpg',
-},
-{
-   name:'jordan 1 chicago',
-   image:'http://hoopbro.co.kr/web/product/big/201611/259_shop1_783031.jpg',
-},
-];
-
-function App() {
-  return(
-     <div>
-        {ShoesIlike.map(dish => <Shoes key={dish.name} name={dish.name} picture={dish.image}/>)}
-     </div>
-  );
+class App extends React.Component {
+   state = {
+      isLoading: false,
+      movies: [],
+   };
+   getMovies = async () => {
+      const{
+         data: {
+            data: {movies}
+         }
+      } = await axios.get('https://yts-proxy.now.sh/list_movies.json?sort_by=rating');
+      this.setState({movies, isLoading: false});
+   }
+   componentDidMount(){
+      this.getMovies();
+   }
+   render() {
+      const { isLoading, movies } = this.state;
+      return(
+         <section className="container">
+            {isLoading ? (
+               <div className="loader">
+                  <span className="loader__text">Loading</span>
+               </div> 
+               ) : (
+                  <div className="movies">
+                  {movies.map(movie => (
+                      <Movie
+                        key={movie.id}
+                        id={movie.id}
+                        year={movie.year}
+                        title={movie.title}
+                        summary={movie.summary}
+                        poster={movie.medium_cover_image}
+                        genres={movie.genres}
+                     />
+                  ))}
+                </div>
+            )}
+         </section>
+      );
+   }
 }
 
 export default App;
